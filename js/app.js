@@ -3,9 +3,10 @@ import { renderComparisonExplorer } from "./sections/renderComparisonExplorer.js
 import { renderDecemberPpcTable } from "./sections/renderHistoricalSections.js";
 
 const reportData = window.REPORT_DATA || {};
+const pptxInsights = window.PPTX_INSIGHTS || {};
 const charts = initDynamicsCharts(reportData);
 renderDecemberPpcTable(reportData);
-renderComparisonExplorer(reportData);
+renderComparisonExplorer(reportData, pptxInsights);
 
 function setupTabs() {
   const tabs = document.querySelectorAll(".tab");
