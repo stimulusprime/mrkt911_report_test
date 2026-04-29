@@ -66,6 +66,7 @@ function setupTopPeriodNav(reportData) {
     "2026-03": "march",
     "2026-02": "february",
     "2026-01": "january",
+    "2025-10": "october",
     "2025-11": "november",
     "2025-12": "december"
   };
