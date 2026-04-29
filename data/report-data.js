@@ -96,6 +96,24 @@ window.REPORT_DATA = {
     ],
     ppcByMonth: [
       {
+        period: "2025-10",
+        sessions: 182781,
+        sharePct: 4.23,
+        orders: 35522,
+        convPct: 19.4,
+        revenueUah: 18047542,
+        avgCheckUah: 508
+      },
+      {
+        period: "2025-11",
+        sessions: 197251,
+        sharePct: 4.42,
+        orders: 40549,
+        convPct: 20.6,
+        revenueUah: 20875031,
+        avgCheckUah: 515
+      },
+      {
         period: "2025-12",
         sessions: 276483,
         sharePct: 4.44,

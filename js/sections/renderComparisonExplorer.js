@@ -8,6 +8,13 @@ function formatPct(value) {
   return `${value.toString().replace(".", ",")}%`;
 }
 
+function formatDelta(curr, prev) {
+  if (curr === null || curr === undefined || prev === null || prev === undefined || prev === 0) return "н/д";
+  const delta = ((curr - prev) / prev) * 100;
+  const sign = delta > 0 ? "+" : "";
+  return `${sign}${delta.toFixed(1).replace(".", ",")}%`;
+}
+
 function ppcByPeriod(reportData) {
   const map = {};
   (reportData.historical.ppcByMonth || []).forEach((row) => {
@@ -28,19 +35,6 @@ function instagramByPeriod(reportData) {
   return map;
 }
 
-function metricConfig(metric) {
-  if (metric === "instagramViews") {
-    return { label: "Instagram перегляди", unit: "переглядів", aggregate: "sum" };
-  }
-  if (metric === "sourceSlides") {
-    return { label: "Слайди джерела", unit: "слайдів", aggregate: "sum" };
-  }
-  if (metric === "ppcRevenue") {
-    return { label: "PPC виторг", unit: "грн", aggregate: "sum" };
-  }
-  return { label: "PPC сесії", unit: "сесій", aggregate: "sum" };
-}
-
 export function renderComparisonExplorer(reportData, pptxInsights = {}) {
   const holder = document.getElementById("history-explorer");
   if (!holder) return;
@@ -56,13 +50,14 @@ export function renderComparisonExplorer(reportData, pptxInsights = {}) {
     <div class="compare-controls">
       <label>З періоду <select id="cmp-from"></select></label>
       <label>До періоду <select id="cmp-to"></select></label>
-      <label>Метрика <select id="cmp-metric">
-        <option value="ppcSessions">PPC сесії</option>
-        <option value="ppcRevenue">PPC виторг</option>
-        <option value="instagramViews">Instagram перегляди</option>
-        <option value="sourceSlides">Покриття джерела (слайди)</option>
-      </select></label>
       <label>Детальний місяць <select id="cmp-focus"></select></label>
+      <div class="compare-presets" id="cmp-presets">
+        <button data-preset="q2">Q2'25</button>
+        <button data-preset="q3">Q3'25</button>
+        <button data-preset="q4">Q4'25</button>
+        <button data-preset="q1">Q1'26</button>
+        <button data-preset="all">Весь період</button>
+      </div>
     </div>
     <div class="compare-kpis" id="compare-kpis"></div>
     <div class="data-table-wrap">
@@ -87,8 +82,8 @@ export function renderComparisonExplorer(reportData, pptxInsights = {}) {
 
   const fromSel = holder.querySelector("#cmp-from");
   const toSel = holder.querySelector("#cmp-to");
-  const metricSel = holder.querySelector("#cmp-metric");
   const focusSel = holder.querySelector("#cmp-focus");
+  const presetsEl = holder.querySelector("#cmp-presets");
   const kpiEl = holder.querySelector("#compare-kpis");
   const rowsEl = holder.querySelector("#compare-rows");
   const focusInsightsEl = holder.querySelector("#focus-insights");
@@ -107,11 +102,16 @@ export function renderComparisonExplorer(reportData, pptxInsights = {}) {
   toSel.value = periods[periods.length - 1];
   focusSel.value = "2025-12";
 
-  function metricValue(metric, period) {
-    if (metric === "ppcRevenue") return ppcMap[period]?.revenueUah;
-    if (metric === "instagramViews") return instagramMap[period];
-    if (metric === "sourceSlides") return sourceIndex[period]?.slideCount || 0;
-    return ppcMap[period]?.sessions;
+  function sumBy(active, getter) {
+    return active.reduce((sum, p) => sum + (getter(p) || 0), 0);
+  }
+
+  function previousRange(active) {
+    if (!active.length) return [];
+    const length = active.length;
+    const startIdx = periods.indexOf(active[0]);
+    const prevStart = Math.max(0, startIdx - length);
+    return periods.slice(prevStart, startIdx);
   }
 
   function render() {
@@ -119,21 +119,25 @@ export function renderComparisonExplorer(reportData, pptxInsights = {}) {
       toSel.value = fromSel.value;
     }
     const active = periods.filter((p) => inRange(p, fromSel.value, toSel.value));
-    const mCfg = metricConfig(metricSel.value);
+    const prev = previousRange(active);
     const focus = ppcMap[focusSel.value];
-    const metricValues = active.map((p) => metricValue(metricSel.value, p)).filter((v) => v !== undefined && v !== null);
-    const metricSum = metricValues.reduce((s, v) => s + v, 0);
-    const metricsWithData = metricValues.length;
-    const focusMetric = metricValue(metricSel.value, focusSel.value);
+    const activePpcSessions = sumBy(active, (p) => ppcMap[p]?.sessions);
+    const activePpcRevenue = sumBy(active, (p) => ppcMap[p]?.revenueUah);
+    const activeInsta = sumBy(active, (p) => instagramMap[p]);
+    const activeSlides = sumBy(active, (p) => sourceIndex[p]?.slideCount);
+    const prevPpcSessions = sumBy(prev, (p) => ppcMap[p]?.sessions);
+    const prevPpcRevenue = sumBy(prev, (p) => ppcMap[p]?.revenueUah);
+    const prevInsta = sumBy(prev, (p) => instagramMap[p]);
     const focusInsight = pptxInsights[focusSel.value] || {};
     const mentions = focusInsight.channelMentions || {};
 
     kpiEl.innerHTML = `
       <div class="kpi-card"><div class="kpi-label">Період</div><div class="kpi-value">${labels[fromSel.value]} - ${labels[toSel.value]}</div><div class="kpi-sub neutral">${active.length} міс.</div></div>
-      <div class="kpi-card"><div class="kpi-label">${mCfg.label} (сума)</div><div class="kpi-value">${formatNum(metricSum)}</div><div class="kpi-sub neutral">${mCfg.unit}; міс. з даними: ${metricsWithData}</div></div>
-      <div class="kpi-card"><div class="kpi-label">PPTX/PDF покриття</div><div class="kpi-value">${active.reduce((s,p)=>s + (sourceIndex[p]?.slideCount || 0),0)}</div><div class="kpi-sub neutral">слайдів у періоді</div></div>
-      <div class="kpi-card"><div class="kpi-label">Фокус: ${labels[focusSel.value]}</div><div class="kpi-value">${formatNum(focus?.revenueUah)}</div><div class="kpi-sub neutral">конверсія: ${formatPct(focus?.convPct)}</div></div>
-      <div class="kpi-card"><div class="kpi-label">Фокусна метрика</div><div class="kpi-value">${formatNum(focusMetric)}</div><div class="kpi-sub neutral">${mCfg.unit}</div></div>
+      <div class="kpi-card"><div class="kpi-label">PPC сесії</div><div class="kpi-value">${formatNum(activePpcSessions)}</div><div class="kpi-sub neutral">до попер. періоду: ${formatDelta(activePpcSessions, prevPpcSessions)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">PPC виторг</div><div class="kpi-value">${formatNum(activePpcRevenue)}</div><div class="kpi-sub neutral">грн; дельта: ${formatDelta(activePpcRevenue, prevPpcRevenue)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Instagram перегляди</div><div class="kpi-value">${formatNum(activeInsta)}</div><div class="kpi-sub neutral">дельта: ${formatDelta(activeInsta, prevInsta)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Покриття джерел</div><div class="kpi-value">${formatNum(activeSlides)}</div><div class="kpi-sub neutral">слайдів у періоді</div></div>
+      <div class="kpi-card"><div class="kpi-label">Фокус: ${labels[focusSel.value]}</div><div class="kpi-value">${formatNum(focus?.revenueUah)}</div><div class="kpi-sub neutral">PPC конверсія: ${formatPct(focus?.convPct)}</div></div>
     `;
 
     rowsEl.innerHTML = active
@@ -171,6 +175,18 @@ export function renderComparisonExplorer(reportData, pptxInsights = {}) {
     `;
   }
 
-  [fromSel, toSel, metricSel, focusSel].forEach((s) => s.addEventListener("change", render));
+  presetsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-preset]");
+    if (!btn) return;
+    const p = btn.dataset.preset;
+    if (p === "q2") { fromSel.value = "2025-04"; toSel.value = "2025-06"; }
+    if (p === "q3") { fromSel.value = "2025-07"; toSel.value = "2025-09"; }
+    if (p === "q4") { fromSel.value = "2025-10"; toSel.value = "2025-12"; }
+    if (p === "q1") { fromSel.value = "2026-01"; toSel.value = "2026-03"; }
+    if (p === "all") { fromSel.value = periods[0]; toSel.value = periods[periods.length - 1]; }
+    render();
+  });
+
+  [fromSel, toSel, focusSel].forEach((s) => s.addEventListener("change", render));
   render();
 }

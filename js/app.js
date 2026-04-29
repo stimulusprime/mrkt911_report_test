@@ -57,5 +57,35 @@ function setupParallax() {
   );
 }
 
+function setupTopPeriodNav(reportData) {
+  const select = document.getElementById("top-period-select");
+  const focus = document.getElementById("cmp-focus");
+  const tabs = document.querySelectorAll(".tab");
+  if (!select || !reportData?.periods) return;
+
+  reportData.periods.forEach((period) => {
+    const option = document.createElement("option");
+    option.value = period;
+    option.textContent = reportData.labels?.[period] || period;
+    select.appendChild(option);
+  });
+  select.value = "2025-12";
+
+  select.addEventListener("change", () => {
+    tabs.forEach((t) => t.classList.remove("active"));
+    const dynTab = document.querySelector('.tab[data-target="dynamics"]');
+    if (dynTab) dynTab.classList.add("active");
+    document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+    document.getElementById("page-dynamics")?.classList.add("active");
+    const localFocus = document.getElementById("cmp-focus");
+    if (localFocus) {
+      localFocus.value = select.value;
+      localFocus.dispatchEvent(new Event("change"));
+    }
+    document.getElementById("history-explorer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 setupTabs();
 setupParallax();
+setupTopPeriodNav(reportData);

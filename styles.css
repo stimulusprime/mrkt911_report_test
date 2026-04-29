@@ -105,6 +105,27 @@ nav.top {
   border-radius: 12px;
   flex-shrink: 0;
 }
+.top-period-nav {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+}
+.top-period-nav label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.top-period-nav select {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--ink);
+  font-family: inherit;
+}
 .tab {
   font-family: 'Unbounded'; font-weight: 600; font-size: 12px;
   letter-spacing: -0.01em;
@@ -725,9 +746,29 @@ section.block.dark .muted-text { color: rgba(255,255,255,0.6); }
 }
 .compare-controls {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: 8px 0 16px;
+}
+.compare-presets {
+  grid-column: span 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.compare-presets button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--charcoal);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.compare-presets button:hover {
+  border-color: var(--red);
+  color: var(--red);
 }
 .compare-controls label {
   display: grid;
@@ -1436,6 +1477,7 @@ footer .meta {
    ============================================================ */
 @media (max-width: 720px) {
   .compare-controls { grid-template-columns: 1fr; }
+  .compare-presets { grid-column: span 1; }
   .compare-kpis { grid-template-columns: 1fr; }
   .focus-snippets { grid-template-columns: 1fr; }
   /* Prevent any horizontal scroll on the page */
@@ -1469,6 +1511,7 @@ footer .meta {
     padding: 3px;
     border-radius: 10px;
   }
+  .top-period-nav { width: 100%; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
     padding: 8px 12px;
