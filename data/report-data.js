@@ -57,6 +57,20 @@ window.REPORT_DATA = {
     }
   },
   historical: {
+    sourceIndexByPeriod: {
+      "2025-04": { source: "PPTX", slideCount: 2, firstSlides: [265, 266] },
+      "2025-05": { source: "PPTX", slideCount: 2, firstSlides: [265, 266] },
+      "2025-06": { source: "PPTX", slideCount: 2, firstSlides: [265, 266] },
+      "2025-07": { source: "PPTX", slideCount: 2, firstSlides: [265, 266] },
+      "2025-08": { source: "PPTX", slideCount: 2, firstSlides: [265, 266] },
+      "2025-09": { source: "PPTX+PDF+HTML", slideCount: 3, firstSlides: [186, 265, 266] },
+      "2025-10": { source: "PPTX+PDF+HTML", slideCount: 6, firstSlides: [50, 98, 181, 186, 265, 266] },
+      "2025-11": { source: "PPTX+PDF+HTML", slideCount: 6, firstSlides: [50, 98, 181, 186, 265, 266] },
+      "2025-12": { source: "PPTX+PDF+HTML", slideCount: 4, firstSlides: [3, 50, 98, 181] },
+      "2026-01": { source: "HTML", slideCount: 0, firstSlides: [] },
+      "2026-02": { source: "HTML", slideCount: 0, firstSlides: [] },
+      "2026-03": { source: "HTML", slideCount: 0, firstSlides: [] }
+    },
     sourceCoverage: [
       { period: "2025-04", source: "PDF", hasStructuredMetrics: false },
       { period: "2025-05", source: "PDF", hasStructuredMetrics: false },

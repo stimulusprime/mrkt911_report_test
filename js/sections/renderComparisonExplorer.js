@@ -39,6 +39,7 @@ export function renderComparisonExplorer(reportData) {
   const periods = reportData.periods || [];
   const labels = reportData.labels || {};
   const coverage = reportData.historical.sourceCoverage || [];
+  const sourceIndex = reportData.historical.sourceIndexByPeriod || {};
   const ppcMap = ppcByPeriod(reportData);
 
   holder.innerHTML = `
@@ -54,6 +55,7 @@ export function renderComparisonExplorer(reportData) {
           <tr>
             <th>Період</th>
             <th>Покриття</th>
+            <th class="num">Слайди джерела</th>
             <th class="num">PPC сесії</th>
             <th class="num">PPC замовлення</th>
             <th class="num">PPC конверсія</th>
@@ -104,9 +106,11 @@ export function renderComparisonExplorer(reportData) {
       .map((period) => {
         const row = ppcMap[period];
         const cov = coverage.find((c) => c.period === period);
+        const src = sourceIndex[period];
         return `<tr>
           <td>${labels[period] || period}</td>
           <td>${cov ? `${cov.source}${cov.hasStructuredMetrics ? "" : " (без повної структури)"}` : "н/д"}</td>
+          <td class="num">${src ? src.slideCount : "0"}</td>
           <td class="num">${formatNum(row?.sessions)}</td>
           <td class="num">${formatNum(row?.orders)}</td>
           <td class="num">${formatPct(row?.convPct)}</td>
