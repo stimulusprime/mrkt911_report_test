@@ -59,30 +59,43 @@ function setupParallax() {
 
 function setupTopPeriodNav(reportData) {
   const select = document.getElementById("top-period-select");
-  const focus = document.getElementById("cmp-focus");
   const tabs = document.querySelectorAll(".tab");
   if (!select || !reportData?.periods) return;
+
+  const monthToPage = {
+    "2026-03": "march",
+    "2026-02": "february",
+    "2026-01": "january",
+    "2025-12": "december"
+  };
 
   reportData.periods.forEach((period) => {
     const option = document.createElement("option");
     option.value = period;
-    option.textContent = reportData.labels?.[period] || period;
+    option.textContent = monthToPage[period]
+      ? (reportData.labels?.[period] || period)
+      : `${reportData.labels?.[period] || period} (далі)`;
     select.appendChild(option);
   });
   select.value = "2025-12";
 
   select.addEventListener("change", () => {
     tabs.forEach((t) => t.classList.remove("active"));
-    const dynTab = document.querySelector('.tab[data-target="dynamics"]');
-    if (dynTab) dynTab.classList.add("active");
+    const targetPage = monthToPage[select.value] || "dynamics";
+    const targetTab = document.querySelector(`.tab[data-target="${targetPage}"]`) || document.querySelector('.tab[data-target="dynamics"]');
+    if (targetTab) targetTab.classList.add("active");
     document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
-    document.getElementById("page-dynamics")?.classList.add("active");
-    const localFocus = document.getElementById("cmp-focus");
-    if (localFocus) {
-      localFocus.value = select.value;
-      localFocus.dispatchEvent(new Event("change"));
+    document.getElementById(`page-${targetPage}`)?.classList.add("active");
+    const localMain = document.getElementById("cmp-main");
+    if (localMain && Array.from(localMain.options).some((o) => o.value === select.value)) {
+      localMain.value = select.value;
+      localMain.dispatchEvent(new Event("change"));
     }
-    document.getElementById("history-explorer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (targetPage === "dynamics") {
+      document.getElementById("history-explorer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   });
 }
 
