@@ -96,6 +96,51 @@ window.REPORT_DATA = {
     ],
     ppcByMonth: [
       {
+        period: "2025-04",
+        sessions: 148595,
+        sharePct: 3.47,
+        orders: 2404,
+        convPct: 1.6,
+        revenueUah: 946877,
+        avgCheckUah: 394
+      },
+      {
+        period: "2025-05",
+        sessions: 111108,
+        sharePct: 2.57,
+        orders: 5833,
+        convPct: 5.2,
+        revenueUah: 2775931,
+        avgCheckUah: 476
+      },
+      {
+        period: "2025-06",
+        sessions: 109146,
+        sharePct: 2.92,
+        orders: 22849,
+        convPct: 20.9,
+        revenueUah: 10516674,
+        avgCheckUah: 460
+      },
+      {
+        period: "2025-07",
+        sessions: 147484,
+        sharePct: 3.71,
+        orders: 33725,
+        convPct: 22.9,
+        revenueUah: 15561220,
+        avgCheckUah: 461
+      },
+      {
+        period: "2025-08",
+        sessions: 145325,
+        sharePct: 3.70,
+        orders: 28101,
+        convPct: 19.3,
+        revenueUah: 12851655,
+        avgCheckUah: 457
+      },
+      {
         period: "2025-09",
         sessions: 146265,
         sharePct: 3.64,
